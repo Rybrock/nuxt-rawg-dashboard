@@ -193,7 +193,7 @@
 <aside v-if="steamData" class="bg-gray-800 rounded-lg p-6 hover:bg-gray-750 transition-colors duration-200">
     <div class="flex items-center justify-between mb-4">
       <h3 class="text-xl font-bold flex items-center">
-        <img src="./steam-logo.svg" alt="Steam" class="w-6 h-6 mr-2 text-white" />
+        <img src="./steam-logo-svg.svg" alt="Steam" class="w-6 h-6 mr-2 text-white" />
         Steam Data
       </h3>
       <a 
