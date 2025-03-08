@@ -187,6 +187,191 @@
                 </div>
               </template>
             </section>
+            <!-- Add this section to your game details page template -->
+<!-- Paste this inside the "space-y-8" div in the right column (after the existing aside elements) -->
+
+<aside v-if="steamData" class="bg-gray-800 rounded-lg p-6 hover:bg-gray-750 transition-colors duration-200">
+    <div class="flex items-center justify-between mb-4">
+      <h3 class="text-xl font-bold flex items-center">
+        <img src="./steam-logo.svg" alt="Steam" class="w-6 h-6 mr-2 text-white" />
+        Steam Data
+      </h3>
+      <a 
+        v-if="steamAppId" 
+        :href="`https://store.steampowered.com/app/${steamAppId}`" 
+        target="_blank" 
+        rel="noopener noreferrer"
+        class="px-3 py-1 bg-[#1b2838] hover:bg-[#2a475e] rounded-md text-white text-sm font-medium transition"
+      >
+        View on Steam
+      </a>
+    </div>
+  
+    <div v-if="isLoadingSteam" class="flex justify-center py-4">
+      <div class="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+    </div>
+  
+    <div v-else class="space-y-4">
+      <!-- Steam Price -->
+      <div v-if="steamPrice">
+        <h4 class="text-violet-200 mb-1">Price</h4>
+        <div class="flex items-center">
+          <span v-if="steamPrice.discount_percent > 0" class="line-through text-gray-400 mr-2">
+            {{ steamPrice.initial_formatted }}
+          </span>
+          <span class="font-bold text-lg" :class="{'text-green-500': steamPrice.discount_percent > 0}">
+            {{ steamPrice.final_formatted }}
+          </span>
+          <span v-if="steamPrice.discount_percent > 0" class="ml-2 bg-green-600 text-white text-xs px-2 py-1 rounded">
+            -{{ steamPrice.discount_percent }}%
+          </span>
+        </div>
+      </div>
+  
+      <!-- Steam User Reviews -->
+      <div v-if="steamReviews && steamReviews.query_summary">
+        <h4 class="text-violet-200 mb-1">User Reviews</h4>
+        <div class="flex items-center">
+          <span 
+            class="px-2 py-1 rounded text-sm font-bold mr-2" 
+            :class="steamReviewColor"
+          >
+            {{ steamReviewSummary }}
+          </span>
+          <span class="text-gray-300">
+            {{ steamReviews.query_summary.total_reviews.toLocaleString() }} reviews
+          </span>
+        </div>
+      </div>
+  
+      <!-- Steam Categories -->
+      <div v-if="steamData.categories && steamData.categories.length">
+        <h4 class="text-violet-200 mb-1">Features</h4>
+        <div class="flex flex-wrap gap-2">
+          <span
+            v-for="category in steamData.categories"
+            :key="category.id"
+            class="px-2 py-1 rounded text-sm bg-gray-700 hover:bg-gray-600 text-white transition"
+          >
+            {{ category.description }}
+          </span>
+        </div>
+      </div>
+  
+      <!-- Steam Release Date -->
+      <div v-if="steamData.release_date">
+        <h4 class="text-violet-200 mb-1">Steam Release Date</h4>
+        <div>{{ steamData.release_date.date }}</div>
+      </div>
+  
+      <!-- Achievements -->
+      <div v-if="steamData.achievements">
+        <h4 class="text-violet-200 mb-1">Achievements</h4>
+        <div class="flex items-center">
+          <span class="text-yellow-400 mr-2">🏆</span>
+          <span>{{ steamData.achievements.total }}</span>
+        </div>
+      </div>
+      
+      <!-- DLCs -->
+      <div v-if="steamData.dlc && steamData.dlc.length">
+        <h4 class="text-violet-200 mb-1">DLCs Available</h4>
+        <div class="flex items-center">
+          <span class="text-green-400 mr-2">{{ steamData.dlc.length }}</span>
+          <button 
+            @click="openDlcModal" 
+            class="text-blue-400 hover:text-blue-300 transition text-sm"
+          >
+            View DLCs
+          </button>
+        </div>
+      </div>
+    </div>
+  </aside>
+  
+  <!-- Add this DLC Modal to your teleport section -->
+  <Teleport to="body">
+    <div
+      v-if="showDlcModal"
+      class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 overflow-y-auto py-8"
+      @click="closeDlcModal"
+    >
+      <div
+        class="relative mx-auto w-full max-w-3xl bg-gray-900 rounded-lg shadow-xl"
+        @click.stop
+      >
+        <div
+          class="flex items-center justify-between p-6 border-b border-gray-700"
+        >
+          <h3 class="text-2xl font-bold text-white">
+            DLCs for {{ game.name }}
+          </h3>
+          <button
+            class="text-gray-400 hover:text-white"
+            @click="closeDlcModal"
+          >
+            <span class="block w-6 h-6 relative">
+              <span
+                class="block absolute w-full h-0.5 bg-current top-1/2 left-0 -rotate-45"
+              ></span>
+              <span
+                class="block absolute w-full h-0.5 bg-current top-1/2 left-0 rotate-45"
+              ></span>
+            </span>
+          </button>
+        </div>
+  
+        <div class="p-6 max-h-[calc(100vh-14rem)] overflow-y-auto">
+          <div v-if="isLoadingDlc" class="py-10 flex justify-center">
+            <div
+              class="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"
+            ></div>
+          </div>
+          
+          <div v-else-if="dlcList.length === 0" class="text-center py-10">
+            <p class="text-gray-400">No DLC information available.</p>
+          </div>
+          
+          <div v-else class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div
+              v-for="dlc in dlcList"
+              :key="dlc.id"
+              class="bg-gray-800 rounded-lg overflow-hidden hover:bg-gray-750 transition"
+            >
+              <img
+                v-if="dlc.header_image"
+                :src="dlc.header_image"
+                :alt="dlc.name"
+                class="w-full h-32 object-cover"
+              />
+              <div class="p-4">
+                <h4 class="font-bold text-white">{{ dlc.name }}</h4>
+                <div v-if="dlc.price" class="mt-2 flex items-center">
+                  <span v-if="dlc.price.discount_percent > 0" class="line-through text-gray-400 mr-2">
+                    {{ dlc.price.initial_formatted }}
+                  </span>
+                  <span class="font-bold" :class="{'text-green-500': dlc.price?.discount_percent > 0}">
+                    {{ dlc.price.final_formatted }}
+                  </span>
+                  <span v-if="dlc.price.discount_percent > 0" class="ml-2 bg-green-600 text-white text-xs px-2 py-1 rounded">
+                    -{{ dlc.price.discount_percent }}%
+                  </span>
+                </div>
+                <a
+                  :href="`https://store.steampowered.com/app/${dlc.id}`"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="mt-3 inline-block px-3 py-1 bg-[#1b2838] hover:bg-[#2a475e] rounded-md text-white text-sm transition"
+                >
+                  View on Steam
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </Teleport>
           </div>
 
           <div class="space-y-8">
