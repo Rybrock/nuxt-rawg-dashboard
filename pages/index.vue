@@ -1,5 +1,7 @@
 <template>
-    <div class="min-h-screen bg-gray-900 text-white p-4 md:p-8">
+  <div class="min-h-screen bg-gray-900 text-white p-4 md:p-8">
+    
+    <div class="container mx-auto">
       <header class="mb-8">
         <h1 class="text-3xl md:text-4xl font-bold mb-2">Game Dashboard</h1>
         <p class="text-gray-400">Discover and explore games powered by RAWG API</p>
@@ -27,10 +29,8 @@
       </template>
       
       <template v-else>
-        <div class="container mx-auto">
-          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-            <GameCard v-for="game in games" :key="game.id" :game="game" />
-          </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+          <GameCard v-for="game in games" :key="game.id" :game="game" />
         </div>
         
         <div class="mt-10 flex justify-center gap-4">
@@ -52,65 +52,67 @@
         </div>
       </template>
     </div>
-  </template>
+  </div>
+</template>
   
-  <script setup>
-  const { fetchGames } = useRawgApi()
+<script setup>
+
+const { fetchGames } = useRawgApi()
   
-  const games = ref([])
-  const isLoading = ref(true)
-  const error = ref(null)
-  const page = ref(1)
-  const hasNextPage = ref(false)
+const games = ref([])
+const isLoading = ref(true)
+const error = ref(null)
+const page = ref(1)
+const hasNextPage = ref(false)
   
-  const filters = ref({
-    ordering: '-added',
-    page_size: 20
-  })
+const filters = ref({
+  ordering: '-added',
+  page_size: 20
+})
   
-  const loadGames = async () => {
-    isLoading.value = true
-    error.value = null
+const loadGames = async () => {
+  isLoading.value = true
+  error.value = null
     
-    try {
-      const params = {
-        ...filters.value,
-        page: page.value
-      }
-      
-      const response = await fetchGames(params)
-      
-      if (response.error) {
-        error.value = response.error
-      } else {
-        games.value = response.results
-        hasNextPage.value = !!response.next
-      }
-    } catch (err) {
-      error.value = 'Failed to fetch games'
-      console.error(err)
-    } finally {
-      isLoading.value = false
+  try {
+    const params = {
+      ...filters.value,
+      page: page.value
     }
-  }
-  
-  const updateFilters = (newFilters) => {
-    filters.value = {
-      ...newFilters,
-      page_size: 20
+      
+    const response = await fetchGames(params)
+      
+    if (response.error) {
+      error.value = response.error
+    } else {
+      games.value = response.results
+      hasNextPage.value = !!response.next
     }
-    page.value = 1
-    loadGames()
+  } catch (err) {
+    error.value = 'Failed to fetch games'
+    console.error(err)
+  } finally {
+    isLoading.value = false
   }
+}
   
-  const changePage = (newPage) => {
-    page.value = newPage
-    loadGames()
+const updateFilters = (newFilters) => {
+  filters.value = {
+    ...newFilters,
+    page_size: 20
   }
+  page.value = 1
+  loadGames()
+}
   
-  watch(() => page.value, loadGames)
+const changePage = (newPage) => {
+  page.value = newPage
+  loadGames()
+}
   
-  onMounted(() => {
-    loadGames()
-  })
-  </script>
+watch(() => page.value, loadGames)
+  
+onMounted(() => {
+  loadGames()
+})
+</script>

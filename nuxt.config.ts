@@ -4,8 +4,8 @@ export default defineNuxtConfig({
   runtimeConfig: {
     public: {
       apiBaseUrl: 'https://api.rawg.io/api',
-      apiKey: '899a0b22100b46c99a4016aca34f63fc',
-      youtubeApiKey: 'AIzaSyAxvrQdwgWxUixZ751j88aysa_dm5pOYVU'
+      apiKey: process.env.RAWG_API_KEY,
+      youtubeApiKey: process.env.YOUTUBE_API_KEY
     }
   },
 

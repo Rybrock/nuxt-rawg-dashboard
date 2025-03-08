@@ -1,7 +1,10 @@
 <template>
     <div>
+        <div>
+            <Appheader/>
+        </div>
 <slot>
-    
+
 </slot>
     </div>
 </template>

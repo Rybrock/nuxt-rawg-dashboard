@@ -45,7 +45,6 @@
   
   const router = useRouter()
   
-  const fallbackImage = '/images/fallback.jpg'
   
   const handleImageError = (event) => {
     event.target.src = fallbackImage
